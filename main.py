@@ -1,5 +1,5 @@
 import re
-from wsgiref.simple_server import WSGIServer
+from gevent.pywsgi import WSGIServer
 
 from flask import Flask, request
 
