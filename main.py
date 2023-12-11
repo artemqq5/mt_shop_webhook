@@ -55,6 +55,5 @@ def webhook_handler():
 
 
 if __name__ == '__main__':
-    app.run()
-    # http_server = WSGIServer(("0.0.0.0", 5009), app)
-    # http_server.serve_forever()
+    http_server = WSGIServer(("0.0.0.0", 5010), app)
+    http_server.serve_forever()
