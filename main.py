@@ -14,7 +14,7 @@ CHANGE_STATUS_TASK = "action_update_custom_field_item"
 MOVE_TASK = "action_move_card_from_list_to_list"
 
 
-@app.route('/mt_shop_creo/mt_shop_creo', methods=['POST', 'GET'])
+@app.route('/mt_shop_creo', methods=['POST', 'GET'])
 def webhook_handler():
     if request.method == 'POST':
         try:
@@ -55,5 +55,6 @@ def webhook_handler():
 
 
 if __name__ == '__main__':
+    # app.run()
     http_server = WSGIServer(("0.0.0.0", 5010), app)
     http_server.serve_forever()
