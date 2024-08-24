@@ -25,6 +25,7 @@ async def transaction_completed():
     default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
     bot = Bot(token=BOT_TOKEN, default=default_properties)
     # print(request.json)
+    print(request.json)
     data = request.json
 
     received_signature = request.headers.get('X-Signature')
@@ -90,27 +91,27 @@ async def transaction_completed():
 
 
 if __name__ == '__main__':
-    payload1 = {
-        "transaction": {
-            "id": "da472b36-00e2-43d8-84e8-c0eee3c30b7a",
-            "order_id": "283585b1-16c6-496d-b493-ab17a574ffd6",
-            "stock_orders": [],
-            "external_order_id": "INV-123",
-            "currency": "USDT",
-            "value": "34.45",
-            "status": "COMPLETE",
-            "is_internal": "false",
-            "hash": "null",
-            "created_at": "2022-03-22 10:09:34",
-            "completed_at": "null"
-        },
-        "event_type": "withdrawal::completed"
-    }
-
-    # Серіалізація JSON payload і кодування ключа в байти
-    payload_json1 = json.dumps(payload1, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
-    signature1 = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json1.encode('utf-8'),
-                          hashlib.sha256).hexdigest()
+    # payload1 = {
+    #     "transaction": {
+    #         "id": "da472b36-00e2-43d8-84e8-c0eee3c30b7a",
+    #         "order_id": "283585b1-16c6-496d-b493-ab17a574ffd6",
+    #         "stock_orders": [],
+    #         "external_order_id": "INV-123",
+    #         "currency": "USDT",
+    #         "value": "34.45",
+    #         "status": "COMPLETE",
+    #         "is_internal": "false",
+    #         "hash": "null",
+    #         "created_at": "2022-03-22 10:09:34",
+    #         "completed_at": "null"
+    #     },
+    #     "event_type": "withdrawal::completed"
+    # }
+    #
+    # # Серіалізація JSON payload і кодування ключа в байти
+    # payload_json1 = json.dumps(payload1, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
+    # signature1 = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json1.encode('utf-8'),
+    #                       hashlib.sha256).hexdigest()
 
     # print(signature1)
     # app.run(threaded=True)
