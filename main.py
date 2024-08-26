@@ -25,6 +25,7 @@ async def invoice_completed():
     print(request.json)
     print(request.headers)
     data = request.json
+    print(json.loads(data))
 
     if request.headers.get('Signature', None) is None:
         print("ERROR: hasn't Signature in request")
@@ -32,10 +33,15 @@ async def invoice_completed():
 
     received_signature = request.headers.get('Signature')
 
+    new_string = json.dumps(data, separators=(",", ":"))
+    new_string_like_php = new_string.replace("/", "\/").encode('utf-8')
+    secret = WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8')
+    signature = hmac.new(secret, new_string_like_php, hashlib.sha256).hexdigest()
+
     # Серіалізація JSON payload і кодування ключа в байти
-    payload_json = json.dumps(data, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
-    signature = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json.encode('utf-8'),
-                         hashlib.sha256).hexdigest()
+    # payload_json = json.dumps(data, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
+    # signature = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json.encode('utf-8'),
+    #                      hashlib.sha256).hexdigest()
 
     print(f"Received Signature: {received_signature}\n")
     print(f"Generated Signature: {signature}\n")
@@ -110,10 +116,10 @@ async def invoice_completed():
 if __name__ == '__main__':
     payload1 = {
         "order": {
-            "id": "bcd8f755-2f01-4fb2-9116-43d4b192ec5a",
+            "id": "c6e705eb-95d0-4738-b729-c2b06975f0f3",
             "currency": "USDT",
-            "value": "29",
-            "expected_amount": "29",
+            "value": "5",
+            "expected_amount": "5",
             "status": "COMPLETE",
             "external_order_id": "423se231-f351-234g-g324-g35gd3452f45",
             "created_at": "2022-03-22 14:01:34",
@@ -125,9 +131,19 @@ if __name__ == '__main__':
     }
 
     # Серіалізація JSON payload і кодування ключа в байти
-    payload_json1 = json.dumps(payload1, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
-    signature1 = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json1.encode('utf-8'),
-                          hashlib.sha256).hexdigest()
+    # payload_json1 = json.dumps(payload1, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
+    # signature1 = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json1.encode('utf-8'),
+    #                       hashlib.sha256).hexdigest()
+
+    new_string1 = json.dumps(payload1, separators=(",", ":"))
+    new_string_like_php1 = new_string1.replace("/", "\/").encode('utf-8')
+    secret1 = WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8')
+    signature1 = hmac.new(secret1, new_string_like_php1, hashlib.sha256).hexdigest()
+
+    # Серіалізація JSON payload і кодування ключа в байти
+    # payload_json = json.dumps(data, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
+    # signature = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json.encode('utf-8'),
+    #                      hashlib.sha256).hexdigest()
 
     print(signature1)
 #     app.run(threaded=True)
