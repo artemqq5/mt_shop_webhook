@@ -40,14 +40,14 @@ translate_dict = {
     "en": {
         "NOTIFICATION": {
             "INVOICE_COMPLETED": "<b>🎉 User successfully topped up the balance! 💸</b>"
-                                 "\n\n💰 User's balance: <b>{$balance}$</b>"
-                                 "\n💵 Topped up by: <b>{$value}$</b>"
-                                 "\n\n🔢 Transaction number: <code>{$number}</code>"
-                                 "\n🆔 Transaction ID: <code>{$id}</code>"
-                                 "\n\n📅 Date: <b>{$date}</b>"
+                                 "\n\n💰 User's balance: <b>{balance}$</b>"
+                                 "\n💵 Topped up by: <b>{value}$</b>"
+                                 "\n\n🔢 Transaction number: <code>{number}</code>"
+                                 "\n🆔 Transaction ID: <code>{id}</code>"
+                                 "\n\n📅 Date: <b>{date}</b>"
                                  "\n\n👤 <b>User:</b>"
-                                 "\n🆔 Telegram ID: <code>{$user_id}</code>"
-                                 "\n🔗 Username: {$username}",
+                                 "\n🆔 Telegram ID: <code>{user_id}</code>"
+                                 "\n🔗 Username: {username}",
             "USERNAME_HAVNT": "⚠️ Username is missing",
             "BALANCE_UPDATED_USER": "<b>Your balance has been successfully topped up! ✅💰</b>"
                                     "\n\n💵 Amount credited: <b>{value}$</b>"
@@ -61,14 +61,14 @@ translate_dict = {
     "ru": {
         "NOTIFICATION": {
             "INVOICE_COMPLETED": "<b>🎉 Пользователь успешно пополнил баланс! 💸</b>"
-                                 "\n\n💰 Баланс пользователя: <b>{$balance}$</b>"
-                                 "\n💵 Пополнил на сумму: <b>{$value}$</b>"
-                                 "\n\n🔢 Номер транзакции: <code>{$number}</code>"
-                                 "\n🆔 ID транзакции: <code>{$id}</code>"
-                                 "\n\n📅 Дата: <b>{$date}</b>"
+                                 "\n\n💰 Баланс пользователя: <b>{balance}$</b>"
+                                 "\n💵 Пополнил на сумму: <b>{value}$</b>"
+                                 "\n\n🔢 Номер транзакции: <code>{number}</code>"
+                                 "\n🆔 ID транзакции: <code>{id}</code>"
+                                 "\n\n📅 Дата: <b>{date}</b>"
                                  "\n\n👤 <b>Пользователь:</b>"
-                                 "\n🆔 Телеграм ID: <code>{$user_id}</code>"
-                                 "\n🔗 Имя пользователя: {$username}",
+                                 "\n🆔 Телеграм ID: <code>{user_id}</code>"
+                                 "\n🔗 Имя пользователя: {username}",
             "USERNAME_HAVNT": "⚠️ Имя пользователя отсутствует",
             "BALANCE_UPDATED_USER": "<b>Ваш баланс успешно пополнен! ✅💰</b>"
                                     "\n\n💵 Сумма зачисления: <b>{value}$</b>"

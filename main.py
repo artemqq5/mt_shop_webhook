@@ -34,8 +34,8 @@ async def invoice_completed():
     signature = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json.encode('utf-8'),
                          hashlib.sha256).hexdigest()
 
-    print(f"Received Signature: {received_signature}\n")
-    print(f"Generated Signature: {signature}\n")
+    # print(f"Received Signature: {received_signature}\n")
+    # print(f"Generated Signature: {signature}\n")
 
     if hmac.compare_digest(received_signature, signature):
 
@@ -54,25 +54,23 @@ async def invoice_completed():
                 print("ERROR: Invoice status already changed from INIT")
                 return "Bad request", 400
 
-            default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
-            bot = Bot(token=BOT_TOKEN, default=default_properties)
-            # notify admins and user
-            await NotificationAdmin.invoice_completed(data['order']['id'], bot)
-            await NotificationClient.invoice_completed(data['order']['id'], bot)
-            await bot.session.close()
-
             # try update invoice status into database
             update_status = InvoiceRepository().update(data['order']['status'], data['order']['id'])
             if not update_status:
                 print("ERROR: Can't update status into db")
-                return "Bad request", 400
 
             # update_balance
             user = UserRepository().user(invoice['user_id'])
             update_balance = UserRepository().update_balance(invoice['user_id'], invoice['value'] + user['balance'])
             if not update_balance:
                 print("ERROR: Can't update user balance into db")
-                return "Bad request", 400
+
+            default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
+            bot = Bot(token=BOT_TOKEN, default=default_properties)
+            # notify admins and user
+            await NotificationAdmin.invoice_completed(data['order']['id'], bot)
+            await NotificationClient.invoice_completed(data['order']['id'], bot)
+            await bot.session.close()
 
         return 'Verified', 200
     else:
