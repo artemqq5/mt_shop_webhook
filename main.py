@@ -22,6 +22,10 @@ async def invoice_completed():
     print(request.json)
     data = request.json
 
+    if request.headers.get('X-Signature', None) is None:
+        print("ERROR: hasn't X-Signature in request")
+        return "Bad request", 400
+
     received_signature = request.headers.get('X-Signature')
 
     # Серіалізація JSON payload і кодування ключа в байти
@@ -65,6 +69,7 @@ async def invoice_completed():
 
         return 'Verified', 200
     else:
+        print("ERROR: No compare_digest in signature")
         return "Bad request", 400  # Bad request
 
 #   {
