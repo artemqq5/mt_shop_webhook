@@ -22,8 +22,6 @@ app = Flask(__name__)
 
 @app.route("/masonspayment", methods=['POST'])
 async def transaction_completed():
-    default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
-    bot = Bot(token=BOT_TOKEN, default=default_properties)
     # print(request.json)
     print(request.json)
     data = request.json
@@ -49,6 +47,8 @@ async def transaction_completed():
                 print("ERROR: Value transaction and Invoice no the same or status already completed")
                 return "Bad request", 400
 
+            default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
+            bot = Bot(token=BOT_TOKEN, default=default_properties)
             # notify admins and user
             await NotificationAdmin.invoice_completed(data['transaction']['id'], bot)
             await NotificationClient.invoice_completed(data['transaction']['id'], bot)
@@ -90,7 +90,7 @@ async def transaction_completed():
 # }
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # payload1 = {
     #     "transaction": {
     #         "id": "da472b36-00e2-43d8-84e8-c0eee3c30b7a",
@@ -115,5 +115,5 @@ if __name__ == '__main__':
 
     # print(signature1)
     # app.run(threaded=True)
-    http_server = WSGIServer(("0.0.0.0", 5100), app)
-    http_server.serve_forever()
+    # http_server = WSGIServer(("0.0.0.0", 5100), app)
+    # http_server.serve_forever()
