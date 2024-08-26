@@ -1,4 +1,3 @@
-import asyncio
 import hashlib
 import hmac
 import json
@@ -7,9 +6,6 @@ from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from flask import Flask, request
-from flask_babel import Babel
-from flask_i18n import I18n
-from gevent.pywsgi import WSGIServer
 
 from data.repository.invoices import InvoiceRepository
 from data.repository.users import UserRepository
@@ -21,7 +17,7 @@ app = Flask(__name__)
 
 
 @app.route("/masonspayment", methods=['POST'])
-async def transaction_completed():
+async def invoice_completed():
     # print(request.json)
     print(request.json)
     data = request.json
@@ -38,31 +34,31 @@ async def transaction_completed():
 
     if hmac.compare_digest(received_signature, signature):
 
-        if data['transaction']['status'] == "COMPLETE":
+        if data['order']['status'] == "COMPLETE":
 
-            # check is invoice exist and simular value in invoice and transaction
-            invoice = InvoiceRepository().invoice(data['transaction']['id'])
+            # check is invoice exist and simular value in invoice
+            invoice = InvoiceRepository().invoice(data['order']['id'])
             # print(invoice)
-            if not invoice or not float(data['transaction']['value']) == invoice['value'] or invoice['status'] == "COMPLETE":
-                print("ERROR: Value transaction and Invoice no the same or status already completed")
+            if not invoice or not float(data['order']['value']) == invoice['value'] or invoice['status'] == "COMPLETE":
+                print("ERROR: Value Invoice no the same or status already completed")
                 return "Bad request", 400
 
             default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
             bot = Bot(token=BOT_TOKEN, default=default_properties)
             # notify admins and user
-            await NotificationAdmin.invoice_completed(data['transaction']['id'], bot)
-            await NotificationClient.invoice_completed(data['transaction']['id'], bot)
+            await NotificationAdmin.invoice_completed(data['order']['id'], bot)
+            await NotificationClient.invoice_completed(data['order']['id'], bot)
             await bot.session.close()
 
             # try update invoice status into database
-            update_status = InvoiceRepository().update(data['transaction']['status'], data['transaction']['id'])
+            update_status = InvoiceRepository().update(data['order']['status'], data['order']['id'])
             if not update_status:
                 print("ERROR: Can't update status into db")
                 return "Bad request", 400
 
             # update_balance
             user = UserRepository().user(invoice['user_id'])
-            update_balance = UserRepository().update_balance(invoice['user_id'], invoice['value']+user['balance'])
+            update_balance = UserRepository().update_balance(invoice['user_id'], invoice['value'] + user['balance'])
             if not update_balance:
                 print("ERROR: Can't update user balance into db")
                 return "Bad request", 400
@@ -71,42 +67,40 @@ async def transaction_completed():
     else:
         return "Bad request", 400  # Bad request
 
-
-# { Withdrawal Complete/Declined
-#   "transaction": {
-#     "id": "4176141e-bd97-4f13-a71a-6547a230cf4a",
-#     "order_id": "283585b1-16c6-496d-b493-ab17a574ffd6",
-#     "external_order_id": "INV-123",
-#     "stock_orders": [],
-#     "currency": "USDT",
-#     "value": "11",
-#     "is_internal": false,
-#     "status": "COMPLETE",
-#     "hash": "null",
-#     "created_at": "2022-03-22 10:09:34",
-#     "completed_at": null
+#   {
+#     "order": {
+#     "id": "08d585b1-86c6-496d-b493-ab17a574fdd6",
+#     "currency": "UAH",
+#     "value": "200",
+#     "expected_amount": "200",
+#     "status": "DECLINED",
+#     "external_order_id": "423se231-f351-234g-g324-g35gd3452f45",
+#     "created_at": "2022-03-22 14:01:34",
+#     "completed_at": null,
+#     "acquiring_url": "https://merchant.pay.whitepay.com/fiat-order/08d585b1-86c6-496d-b493-ab17a574fdd6",
+#     "is_internal": false
 #   },
-#   "event_type": "withdrawal::declined"
+#   "event_type": "order::declined"
 # }
 
 
 # if __name__ == '__main__':
     # payload1 = {
-    #     "transaction": {
-    #         "id": "da472b36-00e2-43d8-84e8-c0eee3c30b7a",
-    #         "order_id": "283585b1-16c6-496d-b493-ab17a574ffd6",
-    #         "stock_orders": [],
-    #         "external_order_id": "INV-123",
-    #         "currency": "USDT",
-    #         "value": "34.45",
-    #         "status": "COMPLETE",
-    #         "is_internal": "false",
-    #         "hash": "null",
-    #         "created_at": "2022-03-22 10:09:34",
-    #         "completed_at": "null"
-    #     },
-    #     "event_type": "withdrawal::completed"
+    #     "order": {
+    #     "id": "08d585b1-86c6-496d-b493-ab17a574fdd6",
+    #     "currency": "UAH",
+    #     "value": "200",
+    #     "expected_amount": "200",
+    #     "status": "DECLINED",
+    #     "external_order_id": "423se231-f351-234g-g324-g35gd3452f45",
+    #     "created_at": "2022-03-22 14:01:34",
+    #     "completed_at": null,
+    #     "acquiring_url": "https://merchant.pay.whitepay.com/fiat-order/08d585b1-86c6-496d-b493-ab17a574fdd6",
+    #     "is_internal": false
+    #   },
+    #   "event_type": "order::declined"
     # }
+
     #
     # # Серіалізація JSON payload і кодування ключа в байти
     # payload_json1 = json.dumps(payload1, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
