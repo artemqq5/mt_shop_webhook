@@ -25,7 +25,8 @@ async def invoice_completed():
     print(request.json)
     print(request.headers)
     data = request.json
-    print(json.loads(data))
+    print(request.data)
+    print(json.loads(str(data)))
 
     if request.headers.get('Signature', None) is None:
         print("ERROR: hasn't Signature in request")
