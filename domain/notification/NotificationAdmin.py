@@ -51,3 +51,40 @@ class NotificationAdmin:
 
         print(f"messaging invoice_completed {counter}/{len(admins)}")
 
+    @staticmethod
+    async def invoice_declined(external_id, bot):
+        counter = 0
+        admins = UserRepository().admins()
+        invoice = InvoiceRepository().invoice(external_id)
+        user = UserRepository().user(invoice['user_id'])
+
+        for admin in admins:
+            try:
+                locale = admin.get('lang', 'en')
+                username = f"@{user['username']}" if user['username'] else translate(locale,
+                                                                                     "NOTIFICATION-USERNAME_HAVNT")
+
+                # Отримуємо шаблон повідомлення з gettext
+                message_template = translate(locale, "NOTIFICATION-INVOICE_DECLINED")
+
+                # Підставляємо динамічні значення в шаблон
+                message = message_template.format(
+                    balance=user['balance'],
+                    value=invoice['value'],
+                    number=invoice['number'],
+                    id=invoice['external_id'],
+                    date=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    user_id=user['user_id'],
+                    username=username
+                )
+
+                await bot.send_message(
+                    chat_id=admin['user_id'],
+                    text=message
+                )
+                counter += 1
+            except Exception as e:
+                print(f"invoice_declined error: {e}")
+
+        print(f"messaging invoice_declined {counter}/{len(admins)}")
+

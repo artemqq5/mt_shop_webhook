@@ -29,12 +29,27 @@ translate_dict = {
                                  "\n🆔 Телеграм ID: <code>{user_id}</code>"
                                  "\n🔗 Юзернейм: {username}",
             "USERNAME_HAVNT": "⚠️ Відстутній юзернейм",
-            "BALANCE_UPDATED_USER": "<b>Ваш баланс успішно поповнено! ✅</b>"
-                                    "\n\nСума зарахування: <b>{value}$</b>"
-                                    "\nБаланс: <b>{balance}$</b>"
+            "BALANCE_UPDATED_USER": "<b>Ваш баланс успішно поповнено! ✅💰</b>"
+                                    "\n\n💵 Сума зарахування: <b>{value}$</b>"
+                                    "\n💸 Баланс: <b>{balance}$</b>"
                                     "\n\n📅 Дата: <b>{date}</b>"
                                     "\n\n🔢 Номер транзакції: <code>{number}</code>"
-                                    "\n🆔 ID транзакції: <code>{id}</code>"
+                                    "\n🆔 ID транзакції: <code>{id}</code>",
+            "INVOICE_DECLINED": "<b>Користувач відмінив інвойс! ❌</b>"
+                                "\n\n💰 Користувач має баланс: <b>{balance}$</b>"
+                                "\n\n💵 Сума зарахування: <b>{value}$</b>"
+                                "\n\n🔢 Номер транзакції: <code>{number}</code>"
+                                "\n🆔 ID транзакції: <code>{id}</code>"
+                                "\n\n📅 Дата: <b>{date}</b>"
+                                "\n\n👤 <b>Користувач:</b>"
+                                "\n🆔 Телеграм ID: <code>{user_id}</code>"
+                                "\n🔗 Юзернейм: {username}",
+            "INVOICE_DECLINED_USER": "<b>Ваш платіж просрочено, час вийшов ❌</b>"
+                                     "\n\n💵 Сума зарахування: <b>{value}$</b>"
+                                     "\n💸 Баланс: <b>{balance}$</b>"
+                                     "\n\n📅 Дата: <b>{date}</b>"
+                                     "\n\n🔢 Номер транзакції: <code>{number}</code>"
+                                     "\n🆔 ID транзакції: <code>{id}</code>",
         },
     },
     "en": {
@@ -54,7 +69,21 @@ translate_dict = {
                                     "\n💸 Balance: <b>{balance}$</b>"
                                     "\n\n📅 Date: <b>{date}</b>"
                                     "\n\n🔢 Transaction number: <code>{number}</code>"
-                                    "\n🆔 Transaction ID: <code>{id}</code>"
+                                    "\n🆔 Transaction ID: <code>{id}</code>",
+            "INVOICE_DECLINED": "<b>The user canceled the invoice! ❌</b>"
+                                "\n\n💰 User's balance: <b>{balance}$</b>"
+                                "\n\n🔢 Transaction number: <code>{number}</code>"
+                                "\n🆔 Transaction ID: <code>{id}</code>"
+                                "\n\n📅 Date: <b>{date}</b>"
+                                "\n\n👤 <b>User:</b>"
+                                "\n🆔 Telegram ID: <code>{user_id}</code>"
+                                "\n🔗 Username: {username}",
+            "INVOICE_DECLINED_USER": "<b>Your payment is overdue, time has run out ❌</b>"
+                                     "\n\n💵 Replenishment amount: <b>{value}$</b>"
+                                     "\n💸 Balance: <b>{balance}$</b>"
+                                     "\n\n📅 Date: <b>{date}</b>"
+                                     "\n\n🔢 Transaction number: <code>{number}</code>"
+                                     "\n🆔 Transaction ID: <code>{id}</code>",
 
         },
     },
@@ -75,7 +104,22 @@ translate_dict = {
                                     "\n💸 Баланс: <b>{balance}$</b>"
                                     "\n\n📅 Дата: <b>{date}</b>"
                                     "\n\n🔢 Номер транзакции: <code>{number}</code>"
-                                    "\n🆔 ID транзакции: <code>{id}</code>"
+                                    "\n🆔 ID транзакции: <code>{id}</code>",
+            "INVOICE_DECLINED": "<b>Пользователь отменил инвойс! ❌</b>"
+                                "\n\n💰 Баланс пользователя: <b>{balance}$</b>"
+                                "\n\n💵 Сумма зачисления: <b>{value}$</b>"
+                                "\n\n🔢 Номер транзакции: <code>{number}</code>"
+                                "\n🆔 ID транзакции: <code>{id}</code>"
+                                "\n\n📅 Дата: <b>{date}</b>"
+                                "\n\n👤 <b>Пользователь:</b>"
+                                "\n🆔 Telegram ID: <code>{user_id}</code>"
+                                "\n🔗 Имя пользователя: {username}",
+            "INVOICE_DECLINED_USER": "<b>Ваш платеж просрочен, время вышло ❌</b>"
+                                     "\n\n💵 Сумма зачисления: <b>{value}$</b>"
+                                     "\n💸 Баланс: <b>{balance}$</b>"
+                                     "\n\n📅 Дата: <b>{date}</b>"
+                                     "\n\n🔢 Номер транзакции: <code>{number}</code>"
+                                     "\n🆔 ID транзакции: <code>{id}</code>",
 
         },
     }
