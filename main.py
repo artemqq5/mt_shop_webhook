@@ -34,8 +34,8 @@ async def invoice_completed():
     signature = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), payload_json.encode('utf-8'),
                          hashlib.sha256).hexdigest()
 
-    # print(f"Received Signature: {received_signature}\n")
-    # print(f"Generated Signature: {signature}\n")
+    print(f"Received Signature: {received_signature}\n")
+    print(f"Generated Signature: {signature}\n")
 
     if hmac.compare_digest(received_signature, signature):
 
@@ -47,10 +47,10 @@ async def invoice_completed():
             if not invoice:
                 print("ERROR: Invoice not exist in database")
                 return "Bad request", 400
-            if not float(data['order']['value']) == invoice['value']:
+            if float(data['order']['value']) != invoice['value']:
                 print("ERROR: Value Invoice no the same")
                 return "Bad request", 400
-            if not invoice['status'] != "INIT":
+            if invoice['status'] != "INIT":
                 print("ERROR: Invoice status already changed from INIT")
                 return "Bad request", 400
 
@@ -79,6 +79,7 @@ async def invoice_completed():
         print("ERROR: No compare_digest in signature")
         return "Bad request", 400  # Bad request
 
+
 #   {
 #     "order": {
 #     "id": "08d585b1-86c6-496d-b493-ab17a574fdd6",
@@ -98,21 +99,20 @@ async def invoice_completed():
 
 if __name__ == '__main__':
     payload1 = {
-        "order": {
-        "id": "1f336422-8b84-442d-a085-1b06d6316c3f",
-        "currency": "USDT",
-        "value": "5",
-        "expected_amount": "5",
-        "status": "COMPLETED",
-        "external_order_id": "423se231-f351-234g-g324-g35gd3452f45",
-        "created_at": "2022-03-22 14:01:34",
-        "completed_at": "null",
-        "acquiring_url": "https://merchant.pay.whitepay.com/fiat-order/08d585b1-86c6-496d-b493-ab17a574fdd6",
-        "is_internal": "false"
-      },
-      "event_type": "order::completed"
+        'order': {
+            'id': '1f336422-8b84-442d-a085-1b06d6316c3f',
+            'currency': 'USDT',
+            'value': '5',
+            'expected_amount': '5',
+            'status': 'COMPLETE',
+            'external_order_id': '423se231-f351-234g-g324-g35gd3452f45',
+            'created_at': '2022-03-22 14:01:34',
+            'completed_at': 'null',
+            'acquiring_url': 'https://merchant.pay.whitepay.com/fiat-order/08d585b1-86c6-496d-b493-ab17a574fdd6',
+            'is_internal': 'false'
+        },
+        'event_type': 'order::completed'
     }
-
 
     # Серіалізація JSON payload і кодування ключа в байти
     payload_json1 = json.dumps(payload1, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
@@ -120,6 +120,6 @@ if __name__ == '__main__':
                           hashlib.sha256).hexdigest()
 
     print(signature1)
-    app.run(threaded=True)
-    http_server = WSGIServer(("0.0.0.0", 5100), app)
-    http_server.serve_forever()
+#     app.run(threaded=True)
+#     http_server = WSGIServer(("0.0.0.0", 5100), app)
+#     http_server.serve_forever()
