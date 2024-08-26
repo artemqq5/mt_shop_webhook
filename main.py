@@ -45,7 +45,6 @@ async def invoice_completed():
         if data['event_type'] in (INVOICE_COMPLETE, INVOICE_DECLINED):
             # check is invoice exist and simular value in invoice
             invoice = InvoiceRepository().invoice(data['order']['id'])
-            # print(invoice)
 
             if not invoice:
                 print("ERROR: Invoice not exist in database")
