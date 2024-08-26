@@ -46,13 +46,17 @@ async def invoice_completed():
             # check is invoice exist and simular value in invoice
             invoice = InvoiceRepository().invoice(data['order']['id'])
             # print(invoice)
+
             if not invoice:
                 print("ERROR: Invoice not exist in database")
                 return "Bad request", 400
-            if float(data['order']['expected_amount']) != invoice['value']:
-                print(
-                    f"ERROR: Expected amount value Invoice no the same ({float(data['order']['expected_amount'])} and {invoice['value']})")
-                return "Bad request", 400
+
+            if data['order']['expected_amount']:  # if no declined status
+                if float(data['order']['expected_amount']) != invoice['value']:
+                    print(
+                        f"ERROR: Expected amount value Invoice no the same ({float(data['order']['expected_amount'])} and {invoice['value']})")
+                    return "Bad request", 400
+
             if invoice['status'] != INVOICE_INIT:
                 print(f"ERROR: Invoice status already changed to {str(data['event_type']).split('::')[1]}")
                 return "Bad request", 400
