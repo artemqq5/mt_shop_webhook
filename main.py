@@ -36,8 +36,8 @@ async def invoice_completed():
     signature = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), new_string_like_php.encode('utf-8'),
                          hashlib.sha256).hexdigest()
 
-    print(f"Received Signature: {received_signature}\n")
-    print(f"Generated Signature: {signature}\n")
+    # print(f"Received Signature: {received_signature}\n")
+    # print(f"Generated Signature: {signature}\n")
 
     if hmac.compare_digest(received_signature, signature):
         print(str(data['event_type']).split("::")[1])
