@@ -31,8 +31,7 @@ async def invoice_completed():
 
     received_signature = request.headers.get('Signature')
 
-    # Серіалізація JSON payload і кодування ключа в байти
-    payload_json = json.dumps(data, separators=(',', ':'))  # Використовуйте ті ж сепаратори, що і в JavaScript
+    payload_json = json.dumps(data, separators=(',', ':'))
     new_string_like_php = payload_json.replace("/", "\/")
     signature = hmac.new(WHITE_PAY_WEBHOOK_TOKEN.encode('utf-8'), new_string_like_php.encode('utf-8'),
                          hashlib.sha256).hexdigest()
