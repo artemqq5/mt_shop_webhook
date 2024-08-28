@@ -8,10 +8,9 @@ from aiogram.enums import ParseMode
 from flask import Flask, request
 from gevent.pywsgi import WSGIServer
 
-from data.repository.invoices import InvoiceRepository
+from data.repository.transactions import TransactionRepository
 from data.repository.users import UserRepository
-from data.status_order import INVOICE_COMPLETE, INVOICE_DECLINED, INVOICE_PARTIALLY_FULFILLED, \
-    INVOICE_FIANL_AMOUNT_RECEIVED, INVOICE_INIT
+from data.status_transaction import TRANSACTION_COMPLETE, TRANSACTION_DECLINED, TRANSACTION_INIT
 from domain.notification.NotificationAdmin import NotificationAdmin
 from domain.notification.NotificationClient import NotificationClient
 from private_cfg import WHITE_PAY_WEBHOOK_TOKEN, BOT_TOKEN
@@ -20,7 +19,7 @@ app = Flask(__name__)
 
 
 @app.route("/masonspayment", methods=['POST'])
-async def invoice_completed():
+async def transaction_completed():
     print(request.json)
     print(request.headers)
     data = request.json
@@ -41,49 +40,69 @@ async def invoice_completed():
 
     if hmac.compare_digest(received_signature, signature):
         print(str(data['event_type']).split("::")[1])
-        if data['event_type'] in (INVOICE_COMPLETE, INVOICE_DECLINED):
-            # check is invoice exist and simular value in invoice
-            invoice = InvoiceRepository().invoice(data['order']['id'])
+        if data['event_type'] in (TRANSACTION_COMPLETE, TRANSACTION_DECLINED):
+            # check is transaction exist and simular value in transaction
+            transaction = TransactionRepository().transaction(data['transaction']['order_id'])
 
-            if not invoice:
-                print("ERROR: Invoice not exist in database")
+            if not transaction:
+                print("ERROR: Transaction not exist in database")
                 return "Bad request", 400
 
-            if data['order']['expected_amount']:  # if no declined status
-                if float(data['order']['expected_amount']) != invoice['value']:
-                    print(
-                        f"ERROR: Expected amount value Invoice no the same ({float(data['order']['expected_amount'])} and {invoice['value']})")
-                    return "Bad request", 400
-
-            if invoice['status'] != INVOICE_INIT:
-                print(f"ERROR: Invoice status already changed to {str(data['event_type']).split('::')[1]}")
+            if transaction['status'] != TRANSACTION_INIT:
+                print(f"ERROR: Transaction status already changed to {str(data['event_type']).split('::')[1]}")
                 return "Bad request", 400
-
-            # try update invoice status into database
-            update_status = InvoiceRepository().update(str(data['event_type']).split("::")[1], data['order']['id'])
-            if not update_status:
-                print("ERROR: Can't update status into db")
 
             default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
             bot = Bot(token=BOT_TOKEN, default=default_properties)
 
-            if data['event_type'] == INVOICE_DECLINED:
+            if not float(data['transaction']['received_total']) >= transaction['expected_amount']:
+                # await NotificationAdmin.transaction_part_completed(
+                #     data['transaction']['order_id'],
+                #     float(data['transaction']['received_total']),
+                #     bot
+                # )
+                # await NotificationClient.transaction_part_completed(
+                #     data['transaction']['order_id'],
+                #     float(data['transaction']['received_total']),
+                #     bot
+                # )
+                # await bot.session.close()
+                print(f"VERIFIED: Transaction received_total less then expected_amount")
+                return f"Verified Transaction received_total less then expected_amount ", 200
+
+            # try update transaction status into database
+            update_status = TransactionRepository().update_status(
+                str(data['event_type']).split("::")[1],
+                data['transaction']['order_id']
+            )
+            if not update_status:
+                print("ERROR: Can't update transaction status into db")
+
+            if data['event_type'] == TRANSACTION_DECLINED:
                 # notify admins and user
-                await NotificationAdmin.invoice_declined(data['order']['id'], bot)
-                await NotificationClient.invoice_declined(data['order']['id'], bot)
+                await NotificationAdmin.transaction_declined(data['transaction']['order_id'], bot)
+                await NotificationClient.transaction_declined(data['transaction']['order_id'], bot)
                 await bot.session.close()
-                return 'Verified Declined order', 200
+                return 'Verified Declined transaction', 200
 
             # update_balance
-            user = UserRepository().user(invoice['user_id'])
-            update_balance = UserRepository().update_balance(invoice['user_id'],
-                                                             float(data['order']['value']) + user['balance'])
+            user = UserRepository().user(transaction['user_id'])
+            TransactionRepository().update_value(
+                float(data['transaction']['received_total']),
+                data['transaction']['order_id']
+            )
+            update_balance = UserRepository().update_balance(
+                transaction['user_id'],
+                float(data['transaction']['received_total']) + user['balance']
+            )
             if not update_balance:
                 print("ERROR: Can't update user balance into db")
 
             # notify admins and user
-            await NotificationAdmin.invoice_completed(data['order']['id'], bot)
-            await NotificationClient.invoice_completed(data['order']['id'], bot)
+            await NotificationAdmin.transaction_completed(data['transaction']['order_id'],
+                                                          data['transaction']['received_total'], bot)
+            await NotificationClient.transaction_completed(data['transaction']['order_id'],
+                                                           data['transaction']['received_total'], bot)
             await bot.session.close()
 
         return 'Verified', 200
@@ -92,38 +111,79 @@ async def invoice_completed():
         return "Bad request", 400  # Bad request
 
 
-#   {
-#     "order": {
-#     "id": "08d585b1-86c6-496d-b493-ab17a574fdd6",
-#     "currency": "UAH",
-#     "value": "200",
-#     "expected_amount": "200",
-#     "status": "DECLINED",
-#     "external_order_id": "423se231-f351-234g-g324-g35gd3452f45",
-#     "created_at": "2022-03-22 14:01:34",
-#     "completed_at": null,
-#     "acquiring_url": "https://merchant.pay.whitepay.com/fiat-order/08d585b1-86c6-496d-b493-ab17a574fdd6",
-#     "is_internal": false
-#   },
-#   "event_type": "order::declined"
+# {
+#     'transaction': {
+#         'id': 'b091f2f7-35b8-490b-8d37-169967a85840',
+#         'order_id': 'b3f5acc0-eb81-4a7f-890e-68874637a53d',
+#         'external_order_id': None,
+#         'stock_orders': [],
+#         'currency': 'USDT',
+#         'value': '2.902',
+#         'is_internal': False,
+#         'type': 'DEPOSIT',
+#         'status': 'COMPLETE',
+#         'hash': '0x44bac9df15c31a2b4d9d666171c7577fdc5d53b363dc5a7beac9557ee1e16549',
+#         'created_at': '2024-08-28 11:23:35',
+#         'completed_at': '2024-08-28 11:27:26',
+#         'fee_amount': '0.029020',
+#         'fee_currency': 'USDT',
+#         'received_total': '5.74596',
+#         'received_currency': 'USDT',
+#         'transaction_received_total': '2.872980'
+#     },
+#     'event_type': 'transaction::was_final_exchange'
 # }
-
 
 # if __name__ == '__main__':
 #     payload1 = {
-#         "order": {
-#             "id": "c6e705eb-95d0-4738-b729-c2b06975f0f3",
-#             "currency": "USDT",
-#             "value": "5",
-#             "expected_amount": "5",
+#         "transaction": {
+#             "id": "600c8cad-5614-42a9-a0c6-19cee0e9e48c",
+#             "order_id": "a65479ac-b5fe-4bb1-961c-09590a7e3cb1",
+#             "external_order_id": "null",
+#             "stock_orders": [
+#                 {
+#                     "id": "35428e8f-a4e0-4922-9e2a-7e3644a2bec7",
+#                     "amount": "100",
+#                     "result_amount": "38.46003825",
+#                     "status": "CLOSED",
+#                     "pair": "ADA_USDT",
+#                     "currency_from_ticker": "ADA",
+#                     "currency_to_ticker": "USDT",
+#                     "date": "2024-08-01",
+#                     "time": "08:20:26",
+#                     "exchange_rate": "0.38460038",
+#                     "created_at": "2024-08-01 08:20:26"
+#                 }
+#             ],
+#             "currency": "ADA",
+#             "value": "100",
+#             "is_internal": "true",
+#             "type": "DEPOSIT",
 #             "status": "COMPLETE",
-#             "external_order_id": "423se231-f351-234g-g324-g35gd3452f45",
-#             "created_at": "2022-03-22 14:01:34",
-#             "completed_at": "null",
-#             "acquiring_url": "https://merchant.pay.whitepay.com/fiat-order/08d585b1-86c6-496d-b493-ab17a574fdd6",
-#             "is_internal": "false"
+#             "hash": "internal_transaction_acd076d1-e166-4b9b-b4a1-dd83b591d0d9",
+#             "created_at": "2024-08-01 08:20:24",
+#             "completed_at": "2024-08-01 08:20:24",
+#             "fee_amount": "0.384601",
+#             "fee_currency": "USDT",
+#             "external_currencies": [
+#                 {
+#                     "currency": "USD",
+#                     "amount": "38.05"
+#                 },
+#                 {
+#                     "currency": "EUR",
+#                     "amount": "35.29"
+#                 },
+#                 {
+#                     "currency": "NGN",
+#                     "amount": "63210.77"
+#                 }
+#             ],
+#             "received_total": "5",
+#             "received_currency": "USDT",
+#             "transaction_received_total": "5"
 #         },
-#         "event_type": "order::declined"
+#         "event_type": "transaction::was_final_exchange"
 #     }
 #
 #     # Серіалізація JSON payload і кодування ключа в байти
@@ -134,5 +194,5 @@ async def invoice_completed():
 #
 #     print(signature1)
 #     app.run(threaded=True)
-#     http_server = WSGIServer(("0.0.0.0", 5100), app)
+#     http_server = WSGIServer(("0.0.0.0", 5000), app)
 #     http_server.serve_forever()
