@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import hmac
 import json
@@ -20,6 +21,7 @@ app = Flask(__name__)
 
 @app.route("/masonspayment", methods=['POST'])
 async def transaction_completed():
+    print(str(datetime.datetime.now()))
     print(request.json)
     print(request.headers)
     data = request.json
@@ -138,7 +140,7 @@ async def transaction_completed():
 #     payload1 = {
 #         "transaction": {
 #             "id": "600c8cad-5614-42a9-a0c6-19cee0e9e48c",
-#             "order_id": "a65479ac-b5fe-4bb1-961c-09590a7e3cb1",
+#             "order_id": "e183a1a2-83ef-47e2-b08b-aa34ea3d797a",
 #             "external_order_id": "null",
 #             "stock_orders": [
 #                 {
@@ -156,14 +158,14 @@ async def transaction_completed():
 #                 }
 #             ],
 #             "currency": "ADA",
-#             "value": "100",
+#             "value": "30.3",
 #             "is_internal": "true",
 #             "type": "DEPOSIT",
 #             "status": "COMPLETE",
 #             "hash": "internal_transaction_acd076d1-e166-4b9b-b4a1-dd83b591d0d9",
 #             "created_at": "2024-08-01 08:20:24",
 #             "completed_at": "2024-08-01 08:20:24",
-#             "fee_amount": "0.384601",
+#             "fee_amount": "0.300000",
 #             "fee_currency": "USDT",
 #             "external_currencies": [
 #                 {
@@ -179,9 +181,9 @@ async def transaction_completed():
 #                     "amount": "63210.77"
 #                 }
 #             ],
-#             "received_total": "5",
+#             "received_total": "30",
 #             "received_currency": "USDT",
-#             "transaction_received_total": "5"
+#             "transaction_received_total": "30"
 #         },
 #         "event_type": "transaction::was_final_exchange"
 #     }
