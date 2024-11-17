@@ -28,7 +28,7 @@ async def transaction_completed():
 
     if request.headers.get('Signature', None) is None:
         print("ERROR: hasn't Signature in request")
-        return "Bad request", 400
+        return "ERROR: hasn't Signature in request", 401
 
     received_signature = request.headers.get('Signature')
 
@@ -48,11 +48,11 @@ async def transaction_completed():
 
             if not transaction:
                 print("ERROR: Transaction not exist in database")
-                return "Bad request", 400
+                return "ERROR: Transaction not found", 404
 
             if transaction['status'] != TRANSACTION_INIT:
                 print(f"ERROR: Transaction status already changed to {str(data['event_type']).split('::')[1]}")
-                return "Bad request", 400
+                return "ERROR: Transaction status already updated", 409
 
             default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
             bot = Bot(token=BOT_TOKEN, default=default_properties)
@@ -70,7 +70,7 @@ async def transaction_completed():
                 # )
                 # await bot.session.close()
                 print(f"VERIFIED: Transaction received_total less then expected_amount")
-                return f"Verified Transaction received_total less then expected_amount ", 200
+                return f"Verified ERROR: Transaction received_total less then expected_amount", 422
 
             # try update transaction status into database
             update_status = TransactionRepository().update_status(
@@ -79,6 +79,7 @@ async def transaction_completed():
             )
             if not update_status:
                 print("ERROR: Can't update transaction status into db")
+                return "ERROR: Database update failed", 500
 
             if data['event_type'] == TRANSACTION_DECLINED:
                 # notify admins and user
@@ -110,7 +111,7 @@ async def transaction_completed():
         return 'Verified', 200
     else:
         print("ERROR: No compare_digest in signature")
-        return "Bad request", 400  # Bad request
+        return "ERROR: Invalid signature", 403  # Bad request
 
 
 # {
